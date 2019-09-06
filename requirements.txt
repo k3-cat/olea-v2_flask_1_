@@ -8,7 +8,7 @@ argon2_cffi
 # (apscheduler)
 Flask-APScheduler
 sentry-sdk[flask]
-python-magic-bin
+python-magic
 redis
 google-cloud-storage
 pydub
