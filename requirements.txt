@@ -1,0 +1,17 @@
+flask
+# (click)
+# (sqlalchemy)
+flask_sqlalchemy
+psycopg2
+passlib
+argon2_cffi
+# (apscheduler)
+Flask-APScheduler
+sentry-sdk[flask]
+python-magic-bin
+redis
+google-cloud-storage
+pydub
+requests
+bs4
+lxml

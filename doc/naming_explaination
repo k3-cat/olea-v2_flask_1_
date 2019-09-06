@@ -1,0 +1,24 @@
+tables:
+pink - user
+leaf - task / mission / job
+mango - individual upload towards to a single leaf
+apl - apply
+txn - transection
+
+
+objects:
+ProjCat - categories of projects
+dep - department
+dep_ - department name
+ta - token based auth
+exts - extensions
+cc - forced droped leaf count
+la - last access
+cd - forced drop count
+
+
+config:
+comm - common
+dev - development
+prod - production
+test - testing
