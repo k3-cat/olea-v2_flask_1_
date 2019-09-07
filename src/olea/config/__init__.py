@@ -12,4 +12,5 @@ def loader(env, package):
 def load_config(app, env):
     app.config.from_object(comm)
     app.config.from_object(instance)
-    app.config.from_object(loader(env, package=__package__))
+    if env != 'prod':
+        app.config.from_object(loader(env, package=__package__))

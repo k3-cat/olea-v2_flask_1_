@@ -1,5 +1,7 @@
 import datetime
 
+SQLALCHEMY_TRACK_MODIFICATIONS = False
+
 TOKEN_LIFE = datetime.timedelta(days=90)
 
 D50_DUE = datetime.timedelta(days=7)

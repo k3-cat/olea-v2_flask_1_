@@ -1,5 +1,6 @@
-import sentry_sdk
 from flask import jsonify
+from sentry_sdk import init as sentry_sdk_init
+from sentry_sdk.integrations.flask import FlaskIntegration
 
 
 class OleaException(Exception):
@@ -15,6 +16,5 @@ def register_error_handlers(app):
 
     app.register_error_handler(OleaException, handle_olea_exceptions)
     if app.env == 'prod':
-        sentry_sdk.init(
-            dsn=app.config['SENTRY_DSN'],
-            integrations=[sentry_sdk.integrations.flask.FlaskIntegration()])
+        sentry_sdk_init(dsn=app.config['SENTRY_DSN'],
+                        integrations=[FlaskIntegration()])

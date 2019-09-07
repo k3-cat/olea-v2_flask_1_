@@ -12,7 +12,7 @@ from .hook import hook_hooks
 from .shellcontext import set_shellcontext
 
 
-def create_app(env=os.getenv('FLASK_ENV') or 'dev'):
+def create_app(env=os.getenv('FLASK_ENV') or 'prod'):
     print('----- olea -----')
     app = Flask('olea')
 

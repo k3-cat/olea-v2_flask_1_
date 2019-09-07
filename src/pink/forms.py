@@ -2,7 +2,7 @@ from enums import Dep
 from exts.jsonform import BaseForm, ValidationError
 from exts.jsonform.fields import (EnumField, IntegerField, ListField,
                                   StringField)
-from exts.jsonform.validators import Email, Optional, Regexp
+from exts.jsonform.validators import Email, Regexp
 
 from .measure_width import calc_width
 
@@ -13,12 +13,9 @@ class SinglePink(BaseForm):
 
 
 class UpdateInfo(BaseForm):
-    qq = IntegerField(validators=(Optional(), ))
-    line = StringField(validators=(Optional(), ))
-    email = StringField(validators=(
-        Optional(),
-        Email(),
-    ))
+    qq = IntegerField(optional=True)
+    line = StringField(optional=True)
+    email = StringField(optional=True, validators=(Email(), ))
 
     def validate_qq(self, field):
         if len(str(field.data)) < 9 or len(str(field.data)) > 10:
@@ -27,8 +24,8 @@ class UpdateInfo(BaseForm):
 
 class Create(BaseForm):
     name = StringField()
-    qq = IntegerField()
-    line = StringField()
+    qq = IntegerField(optional=True)
+    line = StringField(optional=True)
     email = StringField(validators=(Email(), ))
     deps = ListField(EnumField(Dep))
 

@@ -23,4 +23,9 @@ class StopValidation(Exception):
 
 class FormError(OleaException):
     def __init__(self, msg):
+        super().__init__(code='SEYW', parms={'msg': msg})
+
+
+class FormValueError(OleaException):
+    def __init__(self, msg):
         super().__init__(code='JQWV', parms={'msg': msg})

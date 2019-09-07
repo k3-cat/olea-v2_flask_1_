@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 from flask import request
 
-from .errors import FormError, ValidationError
+from .errors import FormError, FormValueError, ValidationError
 
 _Auto = object()
 
@@ -31,17 +31,21 @@ class JsonForm():
         return self._data
 
     def process(self, jsondata: dict):
-        for name, value, in jsondata.items():
+        for name in set(jsondata.keys()).union(set(self._fields.keys())):
             if name not in self._fields:
-                self.errors['FORM'] = ['BAD REQUEST']
+                self.errors['FORM'] = 'BAD REQUEST'
                 return
-            self._fields[name].process(value)
-            if self._fields[name].errors:
-                self.errors[name] = self._fields[name].errors
+            try:
+                if name not in jsondata:
+                    self._fields[name].mark_empty()
+                else:
+                    self._fields[name].process_data(jsondata[name])
+            except ValueError as e:
+                self.errors[name] = str(e)
 
     def validate(self):
         if self.errors:  # process error
-            return False
+            raise FormError(msg=self.errors)
         for name, field in self._fields.items():
             errors = list()
             if not field.validate():
@@ -56,7 +60,7 @@ class JsonForm():
             if errors:
                 self.errors[name] = errors
         if self.errors:
-            raise FormError(msg=self.errors)
+            raise FormValueError(msg=self.errors)
         return self
 
 

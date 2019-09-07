@@ -1,9 +1,6 @@
 import datetime
 
-from enums import Dep, LeafState
-from leaf.models import Leaf
-from pink.models import Pink
-from proj.models import Proj
+from enums import Dep
 
 from .errors import StopValidation, ValidationError
 
@@ -19,13 +16,15 @@ class Field():
 
     def __init__(self,
                  validators: tuple = None,
+                 optional: bool = False,
                  default=None,
                  init: bool = False):
         self.errors: list = None
         self._data = None
         self.validators = validators or tuple()
-        if default:
-            self._default = default
+        self.optional = optional
+        self.default = default
+        self.empty = False
 
     @property
     def data(self):
@@ -35,10 +34,6 @@ class Field():
     def data(self, value):
         self._data = value
 
-    @property
-    def default(self):
-        return self._default
-
     def validate(self):
         self.errors = list()
         for validator in self.validators:
@@ -47,21 +42,15 @@ class Field():
             except ValidationError as e:
                 self.errors.append(str(e))
             except StopValidation as e:
-                if str(e):
-                    self.errors.append(str(e))
-                else:
-                    self.errors = list()
+                self.errors.append(str(e))
                 break
         return not self.errors
 
-    def process(self, value):
-        if not value:
-            self._data = self.default
-            return
-        try:
-            self.process_data(value)
-        except ValueError as e:
-            self.errors = [str(e)]
+    def mark_empty(self):
+        if not self.optional:
+            raise ValueError('cannot be empty')
+        self.data = self.default
+        self.empty = True
 
     def process_data(self, value):
         raise NotImplementedError()
@@ -142,15 +131,15 @@ class BooleanField(Field):
 
 class DateTimeField(Field):
     """
-    A text field which stores a `datetime.datetime` matching a format.
+    A text field which stores a `datetime.datetime` matching a pattern.
     """
-    def __init__(self, validators=None, format_='%Y-%m-%d %H:%M:%S', **kwargs):
+    def __init__(self, validators=None, pattern='%Y-%m-%d %H:%M:%S', **kwargs):
         super().__init__(validators, **kwargs)
-        self.format = format_
+        self.pattern = pattern
 
     def process_data(self, value):
         try:
-            self.data = datetime.datetime.strptime(value, self.format)
+            self.data = datetime.datetime.strptime(value, self.pattern)
         except ValueError:
             raise ValueError('invalid datetime value')
 
@@ -159,12 +148,12 @@ class DateField(DateTimeField):
     """
     Same as DateTimeField, except stores a `datetime.date`.
     """
-    def __init__(self, validators=None, format='%Y-%m-%d', **kwargs):
-        super().__init__(validators, format, **kwargs)
+    def __init__(self, validators=None, pattern='%Y-%m-%d', **kwargs):
+        super().__init__(validators, pattern, **kwargs)
 
     def process_data(self, value):
         try:
-            self.data = datetime.datetime.strptime(value, self.format).date()
+            self.data = datetime.datetime.strptime(value, self.pattern).date()
         except ValueError:
             raise ValueError('invalid date value')
 
@@ -173,12 +162,12 @@ class TimeField(DateTimeField):
     """
     Same as DateTimeField, except stores a `time`.
     """
-    def __init__(self, validators=None, format_='%H:%M', **kwargs):
-        super().__init__(validators, format_, **kwargs)
+    def __init__(self, validators=None, pattern='%H:%M', **kwargs):
+        super().__init__(validators, pattern, **kwargs)
 
     def process_jsondata(self, value):
         try:
-            self.data = datetime.datetime.strptime(value, self.format).time()
+            self.data = datetime.datetime.strptime(value, self.pattern).time()
         except ValueError:
             raise ValueError('invalid time value')
 
@@ -207,7 +196,7 @@ class ListField(Field):
         for val in value:
             try:
                 field = self.unbound_field.bind()
-                field.process(val)
+                field.process_data(val)
                 self.entries.append(field)
             except ValueError as e:
                 raise ValueError(f'value[{val}]: {e}')
@@ -234,9 +223,9 @@ class EnumField(Field):
     def process_data(self, value):
         try:
             enum_obj = self.enum_class[value]
+            self.data = enum_obj
         except KeyError:
             raise ValueError('invalid enum value')
-        self.data = enum_obj
 
 
 class RolesField(Field):
