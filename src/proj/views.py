@@ -48,10 +48,10 @@ def edit_note():
 def book():
     proj = get_proj(SingleProj().validate().data['proj'])
     progress: Progress = proj.progress
-    progress.book(pink_id=g.lemon.pink_id)
+    progress.book(pink_id=g.pink_id)
     db.session.add(progress)
     db.session.commit()
-    return jsonify({'booked_user': progress.booked_pink})
+    return jsonify({'booking_user': progress.booking_pink})
 
 
 @proj_bp.route('/cancll_booking', methods=['POST'])
@@ -59,7 +59,7 @@ def book():
 def cancll_booking():
     proj = get_proj(SingleProj().validate().data['proj'])
     progress: Progress = proj.progress
-    progress.canell_booking(pink_id=g.lemon.pink_id)
+    progress.canell_booking(pink_id=g.pink_id)
     db.session.add(progress)
     db.session.commit()
     return jsonify({})

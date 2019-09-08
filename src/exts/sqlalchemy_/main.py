@@ -11,6 +11,9 @@ class Pagination(object):
     """
     def __init__(self, query, page, per_page, total, items):
         #: The query object that was used to create this pagination object.
+        if not query:
+            raise ValueError(
+                'a query object is required for this class to work')
         self.query = query
 
         #: The current page number (1 indexed).
@@ -45,14 +48,10 @@ class Pagination(object):
 
     def prev(self, error_out=False):
         """Returns a `Pagination` object for the previous page."""
-        assert self.query is not None, \
-            'a query object is required for this method to work'
         return self.query.paginate(self.page - 1, self.per_page, error_out)
 
     def next(self, error_out=False):
         """Returns a `Pagination` object for the next page."""
-        assert self.query is not None, \
-            'a query object is required for this method to work'
         return self.query.paginate(self.page + 1, self.per_page, error_out)
 
 

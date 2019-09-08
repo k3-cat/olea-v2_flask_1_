@@ -72,6 +72,7 @@ def verify_lemon(key):
         db.session.commit()
         return False
     g.lemon = lemon
+    g.pink_id = lemon.pink_id
     return True
 
 
@@ -80,6 +81,7 @@ def verify_elemon(key):
     if not elemon:
         return False
     g.elemon = elemon
+    g.pink_id = elemon.pink_id
     return True
 
 

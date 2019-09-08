@@ -15,13 +15,21 @@ class MailGun(object):
         self.app = app
         self.mailgun_api = MailGunAPI(app.config)
 
+        if 'MUTE_MAILGUN' in self.app.config and self.app.config[
+                'MUTE_MAILGUN']:
+            self._send = lambda a, b, c, d: None
+        else:
+            self._send = self._send_
+
         if not hasattr(app, 'extensions'):
             app.extensions = {}
         app.extensions['mail'] = self
 
     def send(self, subject: str, to: str, template: str,
              values: Dict[str, str]):
-        if self.app.env != 'prod':
-            return
+        self._send(subject, to, template, values)
+
+    def _send_(self, subject: str, to: str, template: str,
+               values: Dict[str, str]):
         maildata = build_message(subject, to, template, values)
-        return self.mailgun_api.send(maildata)
+        self.mailgun_api.send(maildata)

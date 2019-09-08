@@ -28,10 +28,10 @@ def get_pink_(id_: str):
     return jsonify(pink.to_dict(lv=1))
 
 
-@pink_bp.route('/get_self', methods=['GET'])
+@pink_bp.route('/info', methods=['GET'])
 @ta.login_required
-def get_self():
-    pink = get_pink(g.lemon.pink_id)
+def info():
+    pink = get_pink(g.pink_id)
     return jsonify(pink.to_dict(lv=1))
 
 
@@ -39,7 +39,7 @@ def get_self():
 @ta.login_required
 def update_info():
     form = UpdateInfo().validate()
-    pink = get_pink(g.lemon.pink_id)
+    pink = get_pink(g.pink_id)
     dirty = False
     if form.data['qq']:
         dirty = True

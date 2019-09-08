@@ -21,7 +21,7 @@ def pick():
     leaf = Leaf(proj=get_proj(form.data['proj']),
                 dep=form.data['dep'],
                 role=form.data['role'],
-                pink=get_pink(g.lemon.pink_id))
+                pink=get_pink(g.pink_id))
     db.session.add(leaf)
     try:
         db.session.commit()

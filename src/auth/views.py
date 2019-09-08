@@ -36,7 +36,7 @@ def revork():
 @auth_bp.route('/revork_all', methods=['POST'])
 @ta.login_required
 def revork_all():
-    for lemon in get_pink(g.lemon.pink_id).lemons:
+    for lemon in get_pink(g.pink_id).lemons:
         db.session.delete(lemon)
     db.session.commit()
     return jsonify({})
@@ -46,11 +46,11 @@ def revork_all():
 @ta.login_required
 def set_pwd():
     form = SetPwd().validate()
-    pink: Pink = get_pink(g.lemon.pink_id)
+    pink: Pink = get_pink(g.pink_id)
     pink.pwd = form.data['pwd']
     db.session.add(pink)
     db.session.commit()
-    return 'True'
+    return jsonify({})
 
 
 @auth_bp.route('/modi_eleamon', methods=['POST'])
@@ -67,4 +67,4 @@ def modi_eleamon():
     else:
         db.session.delete(elemon)
     db.session.commit()
-    return elemon.key
+    return jsonify({'key': elemon.key})

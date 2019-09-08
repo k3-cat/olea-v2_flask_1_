@@ -10,15 +10,15 @@ from exts import redis_client
 from .errors import InvalidSource, UnableToFetchTitle
 
 CN_SITE_URL = 'http://scp-wiki-cn.wikidot.com'
-EN_SITE_URL = 'http://scp-wiki-cn.wikidot.com'
+EN_SITE_URL = 'http://www.scp-wiki.net'
 
 
 def fetch_web(url, eng):
-    web_page = redis_client.get(url)
+    web_page = redis_client.get(f'{eng}|{url}')
     if not web_page:
         web_page = requests.get(
-            f'{CN_SITE_URL if not eng else EN_SITE_URL}/{url}').text
-        redis_client[url] = web_page
+            f'{EN_SITE_URL if eng else CN_SITE_URL}/{url}').text
+        redis_client[f'{eng}|{url}'] = web_page
         redis_client.pexpire(url, 180_000)
     soup = BeautifulSoup(web_page, 'lxml')
     return soup.find('div', {'id': 'main-content'})

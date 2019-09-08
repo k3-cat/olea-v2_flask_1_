@@ -18,7 +18,7 @@ class Apl(BaseModel):
     reason = Column(Text)
 
     def __init__(self, amount, reason):
-        super().__init__(pink_id=g.lemon.pink_id, amount=amount, reason=reason)
+        super().__init__(pink_id=g.pink_id, amount=amount, reason=reason)
         self.id = generate_id(6)
 
 
@@ -42,7 +42,7 @@ class Txn(BaseModel):
                          debit=debit,
                          credit=credit,
                          reason=reason,
-                         pink_id=g.lemon.pink_id,
+                         pink_id=g.pink_id,
                          timestamp=g.now)
         self.id = sha3_256(
             f'{previous_id}_{debit}_{credit}_{reason}_{self.pink_id}_{self.timestamp}'

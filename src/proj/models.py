@@ -159,7 +159,7 @@ class Progress(BaseModel):
     def book(self, pink_id: str) -> None:
         if self.booking_pink:
             raise IsBooked()
-        if g.lemon.pink_id in self.booking_history:
+        if g.pink_id in self.booking_history:
             raise BookedBefore(timestamp=self.booking_history[pink_id])
         self.booking_pink = pink_id
         self.booking_history[pink_id] = g.now
