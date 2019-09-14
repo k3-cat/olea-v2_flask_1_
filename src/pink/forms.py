@@ -4,7 +4,7 @@ from exts.jsonform.fields import (EnumField, IntegerField, ListField,
                                   StringField)
 from exts.jsonform.validators import Email, Regexp
 
-from .measure_width import calc_width
+from .text_tools import measure_width
 
 
 class SinglePink(BaseForm):
@@ -13,26 +13,32 @@ class SinglePink(BaseForm):
 
 
 class UpdateInfo(BaseForm):
-    qq = IntegerField(optional=True)
+    qq = IntegerField(optional=True,
+                      min_val=100_000_000,
+                      max_val=1_000_000_000)
     line = StringField(optional=True)
     email = StringField(optional=True, validators=(Email(), ))
 
-    def validate_qq(self, field):
-        if len(str(field.data)) < 9 or len(str(field.data)) > 10:
-            raise ValidationError('not a valid qq')
+    def validate(self):
+        if self.qq.empty and self.line.empty:
+            raise ValidationError('must provide ether qq or line')
+        super().validate()
 
 
 class Create(BaseForm):
     name = StringField()
-    qq = IntegerField(optional=True)
+    qq = IntegerField(optional=True,
+                      min_val=100_000_000,
+                      max_val=1_000_000_000)
     line = StringField(optional=True)
     email = StringField(validators=(Email(), ))
     deps = ListField(EnumField(Dep))
 
     def validate_name(self, field):
-        if calc_width(field.data) > 16:
+        if measure_width(field.data) > 16:
             raise ValidationError('name is too long')
 
-    def validate_qq(self, field):
-        if len(str(field.data)) < 9 or len(str(field.data)) > 10:
-            raise ValidationError('not a valid qq')
+    def validate(self):
+        if self.qq.empty and self.line.empty:
+            raise ValidationError('must provide ether qq or line')
+        super().validate()

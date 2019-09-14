@@ -38,18 +38,18 @@ def info():
 @pink_bp.route('/update_info', methods=['POST'])
 @ta.login_required
 def update_info():
-    form = UpdateInfo().validate()
+    form = UpdateInfo()
     pink = get_pink(g.pink_id)
     dirty = False
-    if form.data['qq']:
+    if form['qq']:
         dirty = True
-        pink.qq = str(form.data['qq'])
-    if form.data['line']:
+        pink.qq = str(form['qq'])
+    if form['line']:
         dirty = True
-        pink.line = form.data['line']
-    if form.data['email']:
+        pink.line = form['line']
+    if form['email']:
         dirty = True
-        pink.email = form.data['email']
+        pink.email = form['email']
     if dirty:
         db.session.add(pink)
         db.session.commit()
@@ -59,7 +59,7 @@ def update_info():
 # europaea
 @pink_bp.route('/create', methods=['POST'])
 def create():
-    form = Create().validate()
+    form = Create()
     pink: Pink = Pink(name=form.name.data,
                       qq=form.qq.data,
                       line=form.line.data,
@@ -87,7 +87,7 @@ def create():
 # europaea
 @pink_bp.route('/reset_pwd', methods=['POST'])
 def reset_pwd():
-    pink = get_pink(SinglePink().validate().data['pink'])
+    pink = get_pink(SinglePink()['pink'])
     pwd = generate_pwd()
     pink.pwd = pwd
     mailgun.send(subject='新的口令',
@@ -105,7 +105,7 @@ def reset_pwd():
 # europaea
 @pink_bp.route('/deactive')
 def deactive():
-    pink = get_pink(SinglePink().validate().data['pink'], europaea=True)
+    pink = get_pink(SinglePink()['pink'], europaea=True)
     pink.active = False
     db.session.add(pink)
     for token in pink.tokens:

@@ -12,7 +12,7 @@ from .models import ELemon, Lemon
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
-    form = Login().validate()
+    form = Login()
     pink: Pink = Pink.query.filter_by(active=True, name=form.name.data).first()
     if not pink or not pink.verify_pwd(form.pwd.data):
         raise InvalidCredential()
@@ -45,9 +45,9 @@ def revork_all():
 @auth_bp.route('/set_pwd', methods=['POST'])
 @ta.login_required
 def set_pwd():
-    form = SetPwd().validate()
+    form = SetPwd()
     pink: Pink = get_pink(g.pink_id)
-    pink.pwd = form.data['pwd']
+    pink.pwd = form['pwd']
     db.session.add(pink)
     db.session.commit()
     return jsonify({})
@@ -55,13 +55,13 @@ def set_pwd():
 
 @auth_bp.route('/modi_eleamon', methods=['POST'])
 def modi_eleamon():
-    form = ModiELemon().validate()
-    elemon: ELemon = form.data['pink'].elemon
+    form = ModiELemon()
+    elemon: ELemon = form['pink'].elemon
     if not elemon:
-        pink: Pink = Pink.query.get(form.data['pink'])
+        pink: Pink = Pink.query.get(form['pink'])
         # ?check
         elemon = ELemon(pink=pink)
-    elemon.modi(form.data['asign'], form.data['revork'])
+    elemon.modi(form['asign'], form['revork'])
     if elemon.perms:
         db.session.add(elemon)
     else:

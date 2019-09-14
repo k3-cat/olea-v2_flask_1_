@@ -74,7 +74,7 @@ def get_width(o: int) -> int:
     return 1
 
 
-def calc_width(text: str) -> int:
+def measure_width(text: str) -> int:
     if ASCII_CHAR.match(text):
         return len(text)
 

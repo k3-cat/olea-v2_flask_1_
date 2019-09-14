@@ -13,8 +13,9 @@ from .shellcontext import set_shellcontext
 
 
 def create_app(env=os.getenv('FLASK_ENV') or 'prod'):
-    print('----- olea -----')
+    print(f'\n- - - - - olea[{env}] - - - - -\n')
     app = Flask('olea')
+    app.env = env
 
     load_config(app, env)
     # configure_logger(app)

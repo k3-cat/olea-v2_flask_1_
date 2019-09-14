@@ -12,7 +12,7 @@ from .models import Apl, Txn
 @journal_bp.route('/apply', methods=['POST'])
 @ta.login_required
 def apply():
-    form = Apply().validate()
+    form = Apply()
     apl = Apl(reason=form.reason.data, amount=form.amount.data)
     db.session.add(apl)
     db.session.commit()
@@ -29,14 +29,14 @@ def get_last_txn():
 @journal_bp.route('/transfer', methods=['POST'])
 @ta.login_required
 def transfer():
-    form = Transfer().validate()
+    form = Transfer()
     apl = Apl.query.get(form.aid.data)
     if not apl:
         raise AplNotExist()
     txn = Txn(debit=0,
               credit=apl.amount,
               reason=apl.reason,
-              previous_id=form.data['pervious_id'])
+              previous_id=form['pervious_id'])
     db.session.add(txn)
     db.session.delete(apl)
     db.session.commit()

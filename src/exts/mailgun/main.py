@@ -5,21 +5,19 @@ from .message import build_message
 
 
 class MailGun(object):
-    app = None
-
-    def __init__(self, app=None):
-        if app is not None:
-            self.init_app(app)
+    def __init__(self):
+        self.app = None
+        self.mailgun_api = None
+        self._send = None
 
     def init_app(self, app) -> None:
         self.app = app
         self.mailgun_api = MailGunAPI(app.config)
 
-        if 'MUTE_MAILGUN' in self.app.config and self.app.config[
-                'MUTE_MAILGUN']:
-            self._send = lambda a, b, c, d: None
-        else:
+        if not app.config.get('FAKE_MAILGUN', False):
             self._send = self._send_
+        else:
+            self._send = lambda a, b, c, d: None
 
         if not hasattr(app, 'extensions'):
             app.extensions = {}

@@ -1,8 +1,9 @@
 from enums import ProjCat
 from exts.jsonform import BaseForm, ValidationError
+from exts.jsonform.fields import DateField, EnumField, StringField
 from exts.jsonform.validators import Regexp
-from exts.jsonform.fields import (DateField, EnumField, RolesField,
-                                  StringField)
+
+from .custom_form_fields import RolesField
 
 
 class SingleProj(BaseForm):

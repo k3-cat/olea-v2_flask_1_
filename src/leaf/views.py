@@ -17,10 +17,10 @@ from .utils import get_leaf
 @leaf_bp.route('/pick', methods=['POST'])
 @ta.login_required
 def pick():
-    form = Pick().validate()
-    leaf = Leaf(proj=get_proj(form.data['proj']),
-                dep=form.data['dep'],
-                role=form.data['role'],
+    form = Pick()
+    leaf = Leaf(proj=get_proj(form['proj']),
+                dep=form['dep'],
+                role=form['role'],
                 pink=get_pink(g.pink_id))
     db.session.add(leaf)
     try:
@@ -35,7 +35,7 @@ def pick():
 @leaf_bp.route('/drop', methods=['POST'])
 @ta.login_required
 def drop():
-    leaf = get_leaf(SingleLeaf().validate().form.data['leaf'])
+    leaf = get_leaf(SingleLeaf()['leaf'])
     leaf.drop()
     db.session.add(leaf)
     db.session.commit()
@@ -45,7 +45,7 @@ def drop():
 @leaf_bp.route('/redo', methods=['GET'])
 @ta.login_required
 def redo():
-    leaf = get_leaf(SingleLeaf().validate().form.data['leaf'])
+    leaf = get_leaf(SingleLeaf()['leaf'])
     leaf.redo()
     db.session.add(leaf)
     db.session.commit()

@@ -1,8 +1,4 @@
-try:
-    import redis
-except ImportError:
-    # We can still allow custom provider-only usage without redis-py being installed
-    redis = None
+import redis
 
 
 class FlaskRedis(object):
@@ -12,17 +8,15 @@ class FlaskRedis(object):
         self.provider_kwargs = kwargs
 
     def init_app(self, app, **kwargs):
-        if app.env != 'prod':
-            from fakeredis import FakeRedis
-            self.provider_class = FakeRedis
-
         redis_url = app.config['REDIS_URL']
-
         self.provider_kwargs.update(kwargs)
         self._redis_client = self.provider_class.from_url(
             redis_url, **self.provider_kwargs)
 
-        if not hasattr(app, "extensions"):
+        if not app.sconfig.get('FAKE_REDIS', False):
+            from fakeredis import FakeRedis
+            self.provider_class = FakeRedis
+        if not hasattr(app, 'extensions'):
             app.extensions = {}
         app.extensions['redis'] = self
 

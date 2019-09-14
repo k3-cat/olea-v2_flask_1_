@@ -1,3 +1,3 @@
 from .main import MailGun
 
-mailgun = MailGun()
+mailgun_client = MailGun()

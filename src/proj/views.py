@@ -35,9 +35,9 @@ def get_proj_(id_: str):
 @proj_bp.route('/edit_note', methods=['POST'])
 @ta.login_required
 def edit_note():
-    form = EditNote().validate()
-    proj = get_proj(form.data['proj'])
-    proj.set_note(form.data['note'])
+    form = EditNote()
+    proj = get_proj(form['proj'])
+    proj.set_note(form['note'])
     db.session.add(proj)
     db.session.commit()
     return jsonify({'note': proj.note.split('$|\n', 1)})
@@ -46,7 +46,7 @@ def edit_note():
 @proj_bp.route('/book', methods=['POST'])
 @ta.login_required
 def book():
-    proj = get_proj(SingleProj().validate().data['proj'])
+    proj = get_proj(SingleProj()['proj'])
     progress: Progress = proj.progress
     progress.book(pink_id=g.pink_id)
     db.session.add(progress)
@@ -57,7 +57,7 @@ def book():
 @proj_bp.route('/cancll_booking', methods=['POST'])
 @ta.login_required
 def cancll_booking():
-    proj = get_proj(SingleProj().validate().data['proj'])
+    proj = get_proj(SingleProj()['proj'])
     progress: Progress = proj.progress
     progress.canell_booking(pink_id=g.pink_id)
     db.session.add(progress)
@@ -68,10 +68,10 @@ def cancll_booking():
 # europaea
 @proj_bp.route('/init_roles', methods=['POST'])
 def init_roles():
-    form = InitRoles().validate()
-    proj = get_proj(form.data['proj'])
+    form = InitRoles()
+    proj = get_proj(form['proj'])
     progress: Progress = proj.progress
-    progress.set_roles(form.data['roles'])
+    progress.set_roles(form['roles'])
     db.session.add(progress)
     db.session.commit()
     return jsonify({})
@@ -80,12 +80,12 @@ def init_roles():
 # europaea
 @proj_bp.route('/create', methods=['POST'])
 def create():
-    form = Create().validate()
-    proj: Proj = Proj(base=form.data['base'],
-                      pub_date=form.data['pub_date'],
-                      cat=form.data['cat'],
-                      note=form.data['note'],
-                      suff=form.data['suff'])
+    form = Create()
+    proj: Proj = Proj(base=form['base'],
+                      pub_date=form['pub_date'],
+                      cat=form['cat'],
+                      note=form['note'],
+                      suff=form['suff'])
     db.session.add(proj)
     try:
         db.session.commit()
