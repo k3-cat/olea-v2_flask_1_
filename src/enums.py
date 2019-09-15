@@ -3,8 +3,7 @@ import enum
 
 class ProjCat(enum.IntEnum):
     normal = 10
-    normal_eng = 11
-    explain = 20
+    explaination = 20
     story = 30
 
 
@@ -49,7 +48,3 @@ class ProgressState(enum.IntEnum):
     s7_1 = 71
     s7_2 = 72
     s7_3 = 73
-
-
-class Perms(enum.IntEnum):
-    su = 0

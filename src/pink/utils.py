@@ -1,11 +1,11 @@
+from .errors import AccessDenied, NonExistedObj
 from .models import Pink
-from .errors import PinkNotExist, AccessDenied
 
 
-def get_pink(id_: str, europaea: bool = False) -> Pink:
+def query_pink(id_: str, europaea: bool = False) -> Pink:
     pink: Pink = Pink.query.get(id_)
     if not pink:
-        raise PinkNotExist()
+        raise NonExistedObj(cls=Pink)
     if not pink.active and not europaea:
-        raise AccessDenied()
+        raise AccessDenied(obj=pink)
     return pink

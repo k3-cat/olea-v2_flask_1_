@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, List
 
 from flask import g, jsonify
 
-from auth import ta
+from auth import login_required, permission_required
 from exts import db
 from exts.sqlalchemy_ import UNIQUE_VIOLATION, IntegrityError
 
@@ -12,31 +12,31 @@ from . import proj_bp
 from .errors import DuplicateProj
 from .forms import Create, EditNote, InitRoles, SingleProj
 from .models import Proj
-from .utils import get_proj
+from .utils import query_proj
 
 if TYPE_CHECKING:
     from .models import Progress
 
 
 @proj_bp.route('/all', methods=['GET'])
-@ta.login_required
+@login_required
 def all_projs():
     projs: List[Proj] = Proj.query.filter_by(finish_at=None).all()
     return jsonify([proj.to_dict(lv=0) for proj in projs])
 
 
 @proj_bp.route('/<string:id_>', methods=['GET'])
-@ta.login_required
-def get_proj_(id_: str):
-    proj = get_proj(id_)
+@login_required
+def get_proj(id_: str):
+    proj = query_proj(id_)
     return jsonify(proj.to_dict(lv=1))
 
 
 @proj_bp.route('/edit_note', methods=['POST'])
-@ta.login_required
+@login_required
 def edit_note():
     form = EditNote()
-    proj = get_proj(form['proj'])
+    proj = query_proj(form['proj'])
     proj.set_note(form['note'])
     db.session.add(proj)
     db.session.commit()
@@ -44,9 +44,9 @@ def edit_note():
 
 
 @proj_bp.route('/book', methods=['POST'])
-@ta.login_required
+@login_required
 def book():
-    proj = get_proj(SingleProj()['proj'])
+    proj = query_proj(SingleProj()['proj'])
     progress: Progress = proj.progress
     progress.book(pink_id=g.pink_id)
     db.session.add(progress)
@@ -55,9 +55,9 @@ def book():
 
 
 @proj_bp.route('/cancll_booking', methods=['POST'])
-@ta.login_required
+@login_required
 def cancll_booking():
-    proj = get_proj(SingleProj()['proj'])
+    proj = query_proj(SingleProj()['proj'])
     progress: Progress = proj.progress
     progress.canell_booking(pink_id=g.pink_id)
     db.session.add(progress)
@@ -65,11 +65,11 @@ def cancll_booking():
     return jsonify({})
 
 
-# europaea
 @proj_bp.route('/init_roles', methods=['POST'])
+@permission_required(perm='proj.init_roles')
 def init_roles():
     form = InitRoles()
-    proj = get_proj(form['proj'])
+    proj = query_proj(form['proj'])
     progress: Progress = proj.progress
     progress.set_roles(form['roles'])
     db.session.add(progress)
@@ -77,8 +77,8 @@ def init_roles():
     return jsonify({})
 
 
-# europaea
 @proj_bp.route('/create', methods=['POST'])
+@permission_required(perm='proj.create')
 def create():
     form = Create()
     proj: Proj = Proj(base=form['base'],

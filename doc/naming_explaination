@@ -4,7 +4,7 @@ leaf - task / mission / job
 mango - individual upload towards to a single leaf
 apl - apply
 txn - transection
-
+duck - permission
 
 objects:
 ProjCat - categories of projects

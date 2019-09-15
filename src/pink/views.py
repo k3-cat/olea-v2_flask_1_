@@ -2,8 +2,8 @@ from typing import List
 
 from flask import g, jsonify
 
-from auth import ta
-from exts import db, mailgun
+from auth import login_required, permission_required
+from exts import db, mailgun_client
 from exts.sqlalchemy_ import UNIQUE_VIOLATION, IntegrityError
 
 from . import pink_bp
@@ -11,35 +11,35 @@ from .errors import DuplicatePink
 from .forms import Create, SinglePink, UpdateInfo
 from .models import Pink
 from .pwd_tools import generate_pwd
-from .utils import get_pink
+from .utils import query_pink
 
 
 @pink_bp.route('/all', methods=['GET'])
-@ta.login_required
+@login_required
 def all_pinks():
     pinks: List[Pink] = Pink.query.filter_by(active=True).all()
     return jsonify([pink.to_dict(lv=0) for pink in pinks])
 
 
 @pink_bp.route('/<string:id_>', methods=['GET'])
-@ta.login_required
-def get_pink_(id_: str):
-    pink = get_pink(id_)
+@login_required
+def get_pink(id_: str):
+    pink = query_pink(id_)
     return jsonify(pink.to_dict(lv=1))
 
 
 @pink_bp.route('/info', methods=['GET'])
-@ta.login_required
+@login_required
 def info():
-    pink = get_pink(g.pink_id)
+    pink = query_pink(g.pink_id)
     return jsonify(pink.to_dict(lv=1))
 
 
 @pink_bp.route('/update_info', methods=['POST'])
-@ta.login_required
+@login_required
 def update_info():
     form = UpdateInfo()
-    pink = get_pink(g.pink_id)
+    pink = query_pink(g.pink_id)
     dirty = False
     if form['qq']:
         dirty = True
@@ -56,8 +56,8 @@ def update_info():
     return 'True'
 
 
-# europaea
 @pink_bp.route('/create', methods=['POST'])
+@permission_required(perm='pink.create')
 def create():
     form = Create()
     pink: Pink = Pink(name=form.name.data,
@@ -74,38 +74,38 @@ def create():
         if e.orig.pgcode == UNIQUE_VIOLATION:
             raise DuplicatePink()
         raise
-    mailgun.send(subject='初次见面, 这里是olea',
-                 to=(pink.email, ),
-                 template='new_pink',
-                 values={
-                     'name': pink.name,
-                     'pwd': pwd
-                 })
+    mailgun_client.send(subject='初次见面, 这里是olea',
+                        to=(pink.email, ),
+                        template='new_pink',
+                        values={
+                            'name': pink.name,
+                            'pwd': pwd
+                        })
     return jsonify({'id': pink.id})
 
 
-# europaea
 @pink_bp.route('/reset_pwd', methods=['POST'])
+@permission_required(perm='pink.reset_pwd')
 def reset_pwd():
-    pink = get_pink(SinglePink()['pink'])
+    pink = query_pink(SinglePink()['pink'])
     pwd = generate_pwd()
     pink.pwd = pwd
-    mailgun.send(subject='新的口令',
-                 to=[pink.email],
-                 template='reset_pink',
-                 values={
-                     'name': pink.name,
-                     'pwd': pwd
-                 })
+    mailgun_client.send(subject='新的口令',
+                        to=[pink.email],
+                        template='reset_pink',
+                        values={
+                            'name': pink.name,
+                            'pwd': pwd
+                        })
     db.session.add(pink)
     db.session.commit()
     return jsonify({})
 
 
-# europaea
 @pink_bp.route('/deactive')
+@permission_required(perm='pink.deative')
 def deactive():
-    pink = get_pink(SinglePink()['pink'], europaea=True)
+    pink = query_pink(SinglePink()['pink'], europaea=True)
     pink.active = False
     db.session.add(pink)
     for token in pink.tokens:

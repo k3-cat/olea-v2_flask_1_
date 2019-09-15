@@ -111,7 +111,7 @@ class JsonForm():
         for name, field in self._fields.items():
             field.validate()
             field_errors = field.errors
-            inline = getattr(self.__class__, f'validate_{name}', None)
+            inline = getattr(self, f'validate_{name}', None)
             if inline is not None:
                 try:
                     inline(self, field)

@@ -8,12 +8,10 @@ from enums import Dep, ProgressState, ProjCat
 from exts.id_tools import generate_id
 from exts.sqlalchemy_ import (BaseModel, Column, ForeignKey, UniqueConstraint,
                               relationship)
-from exts.sqlalchemy_.types import (JSON, Boolean, Date, DateTime, Enum,
-                                    String, Text)
+from exts.sqlalchemy_.types import JSON, Date, DateTime, Enum, String, Text
 
 from .elfs import run_elfs
-from .errors import (BookedBefore, CancellingRejected, IsBooked,
-                     RoleInitedBefore, RoleNotExist)
+from .errors import BookedBefore, CancellingRejected, IsBooked, RolesExisted
 from .info_builder import build_basic_info, build_complexity_info
 
 if TYPE_CHECKING:
@@ -24,11 +22,11 @@ if TYPE_CHECKING:
 class Proj(BaseModel):
     __tablename__ = 'proj'
 
-    id = Column(String(12), primary_key=True)
-    title = Column(String(50), index=True)
-    source = Column(String(30))
+    id = Column(String, primary_key=True)
+    title = Column(String, index=True)
+    source = Column(String)
     pub_date = Column(Date)
-    suff = Column(String(10))
+    suff = Column(String)
     cat = Column(Enum(ProjCat))
     note = Column(Text)
     complexity = Column(JSON)
@@ -84,8 +82,7 @@ class Proj(BaseModel):
                 'id': self.id,
                 'title': self.display_title,
                 'cat': self.cat.name,
-                'url': self.source if self.cat in (ProjCat.normal,
-                                                   ProjCat.normal_eng) else None,
+                'url': self.source if self.cat is ProjCat.normal else None,
                 'complexity': self.get_complexity_display(),
                 'note': self.note.split('$|\n', 1),
                 'booked': self.progress.booking_pink is not None
@@ -95,8 +92,7 @@ class Proj(BaseModel):
                 'id': self.id,
                 'title': self.display_title,
                 'cat': self.cat.name,
-                'url': self.source if self.cat in (ProjCat.normal,
-                                                   ProjCat.normal_eng) else None,
+                'url': self.source if self.cat is ProjCat.normal else None,
                 'pub_date': self.pub_date,
                 'complexity': self.get_complexity_display(),
                 'note': self.note.split('$|\n', 1),
@@ -131,30 +127,18 @@ class Progress(BaseModel):
 
     def set_roles(self, roles: Dict[Dep, List[str]]) -> None:
         if self.freeroles.first():
-            raise RoleInitedBefore()
-        roles_ = {(dep.name, role)
+            raise RolesExisted()
+        roles_ = {(dep, role)
                   for dep, roles in roles.items() for role in set(roles)}
         self.unfinished = {
             dep.name: len(set(roles))
-            for dep, role in roles.items()
+            for dep, roles in roles.items()
         }
         for role_tup in roles_:
             self.freeroles.append(
                 FreeRole(progress_id=self.proj_id,
-                         dep_=role_tup[0],
+                         dep=role_tup[0],
                          role=role_tup[1]))
-
-    def put_role(self, dep: Dep, role: str) -> None:
-        self.freeroles.append(
-            FreeRole(progress_id=self.proj_id, dep_=dep.name, role=role))
-
-    def take_role(self, dep: Dep, role: str) -> None:
-        freerole = self.freeroles.filter_by(dep_=dep.name,
-                                            role=role,
-                                            taken=False).first()
-        if not freerole:
-            raise RoleNotExist()
-        freerole.taken = True
 
     def book(self, pink_id: str) -> None:
         if self.booking_pink:
@@ -173,18 +157,18 @@ class Progress(BaseModel):
 class FreeRole(BaseModel):
     __tablename__ = 'freerole'
 
-    id = Column(String(6), primary_key=True)
+    id = Column(String, primary_key=True)
     progress_id = Column(String,
                          ForeignKey('progress.proj_id', ondelete='CASCADE'))
-    dep_ = Column(String(3))
-    role = Column(String(30))
-    taken = Column(Boolean, default=False)
+    dep = Column(Enum(Dep))
+    role = Column(String)
+    leaf_id = Column(String, ForeignKey('leaf.id', ondelete='SET NULL'))
 
     progress = relationship('Progress', back_populates='freeroles')
 
-    def __init__(self, progress_id: str, dep_: str, role: str):
-        super().__init__(progress_id=progress_id, dep_=dep_, role=role)
-        self.id = generate_id(6)
+    def __init__(self, progress_id: str, dep: Dep, role: str):
+        super().__init__(progress_id=progress_id, dep=dep, role=role)
+        self.id = generate_id(9)
 
     def to_dict(self):
-        return (self.dep_, self.role)
+        return (self.id, self.dep.name, self.role)

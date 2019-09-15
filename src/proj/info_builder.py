@@ -9,28 +9,26 @@ from exts import redis_client
 from .errors import InvalidSource, UnableToFetchTitle
 
 CN_SITE_URL = 'http://scp-wiki-cn.wikidot.com'
-EN_SITE_URL = 'http://www.scp-wiki.net'
 
 
-def fetch_web(url, eng):
-    web_page = redis_client.get(f'{eng}|{url}')
+def fetch_web(url):
+    web_page = redis_client.get(url)
     if not web_page:
-        web_page = requests.get(
-            f'{EN_SITE_URL if eng else CN_SITE_URL}/{url}').text
-        redis_client[f'{eng}|{url}'] = web_page
-        redis_client.pexpire(url, 180_000)
+        web_page = requests.get(f'{CN_SITE_URL}/{url}').text
+        redis_client[url] = web_page
+        redis_client.pexpire(url, ex=180)
     soup = BeautifulSoup(web_page, 'lxml')
     return soup.find('div', {'id': 'main-content'})
 
 
-def fetch_title_by_url(url, eng):
-    web = fetch_web(url, eng)
+def fetch_title_by_url(url):
+    web = fetch_web(url)
     title_e = web.find('div', {'id': 'page-title'})
     return title_e.text.strip()
 
 
-def fetch_title_by_id(url, id_, eng):
-    web = fetch_web(url, eng)
+def fetch_title_by_id(url, id_):
+    web = fetch_web(url)
     try:
         title_e = web.find_all(name='a', text=f'SCP-{id_}', limit=1)[0]
         if not title_e:
@@ -41,12 +39,12 @@ def fetch_title_by_id(url, id_, eng):
 
 
 def build_basic_info(base, cat):
-    if cat not in (ProjCat.normal, ProjCat.normal_eng):
+    if cat is not ProjCat.normal:
         title = base
         source = base
     elif base[0] == '/':
         source = base
-        title = fetch_title_by_url(base, cat is ProjCat.normal_eng)
+        title = fetch_title_by_url(base)
     else:
         base = re.match(r'^(?:scp-)?(.*)$', base.lower()).group(1)
         source = f'/scp-{base}'
@@ -69,9 +67,8 @@ def build_basic_info(base, cat):
             url_ = 'scp-international/'
         else:
             raise InvalidSource()
-        raw_title = re.match(
-            '^<li><a.*/a>(.*)</li>$',
-            fetch_title_by_id(url_, base.upper(), cat is ProjCat.normal_eng))
+        raw_title = re.match('^<li><a.*/a>(.*)</li>$',
+                             fetch_title_by_id(url_, base.upper()))
         title += raw_title.group(1)
     return title, source
 
@@ -94,7 +91,7 @@ def build_complexity_info(proj):
     if proj.source[0] != '/':
         wc = 0
     else:
-        web = fetch_web(proj.source, proj.cat is ProjCat.normal_eng)
+        web = fetch_web(proj.source)
         page_content = web.find('div', {'id': 'page-content'})
         wc = count_chars(page_content.text)
     return {'al': {}, 'cl': {}, 'wc': wc, 'vl': 0}

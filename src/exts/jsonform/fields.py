@@ -1,3 +1,4 @@
+import base64
 import datetime
 
 from .main import Field
@@ -145,3 +146,19 @@ class EnumField(Field):
         except KeyError:
             raise ValueError('invalid enum')
         self.data = enum_obj
+
+
+class BytesField(Field):
+    def __init__(self, length, **kwargs):
+        super().__init__(**kwargs)
+        if not isinstance(length, int):
+            raise Exception()
+        self.length = length
+
+    def process_data(self, value):
+        try:
+            self.data = base64.decodebytes(value)
+        except (ValueError, TypeError):
+            raise ValueError('invalid base64 bytes')
+        if len(self.data) != self.length:
+            raise ValueError('invalid length')

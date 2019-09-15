@@ -4,7 +4,7 @@ from .api import MailGunAPI
 from .message import build_message
 
 
-class MailGun(object):
+class MailGun():
     def __init__(self):
         self.app = None
         self.mailgun_api = None

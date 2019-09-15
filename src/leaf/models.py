@@ -11,9 +11,10 @@ from exts.sqlalchemy_ import (BaseModel, Column, ForeignKey, UniqueConstraint,
                               relationship)
 from exts.sqlalchemy_.types import (ARRAY, JSON, Boolean, DateTime, Enum,
                                     LargeBinary, String)
+from proj.utils import query_freerole
 
 from .audio_tools import get_audio_info
-from .errors import StateLocked, NotAllowedType, UnknowType, NotQualifiedToPick
+from .errors import NotQualifiedToPick, StateLocked, UnallowedType, UnknowType
 from .file_tools import EXTS, is_allowed_type, special_save
 
 if TYPE_CHECKING:
@@ -24,10 +25,10 @@ if TYPE_CHECKING:
 class Leaf(BaseModel):
     __tablename__ = 'leaf'
 
-    id = Column(String(15), primary_key=True)
+    id = Column(String, primary_key=True)
     proj_id = Column(String, ForeignKey('proj.id', ondelete='CASCADE'))
     dep = Column(Enum(Dep))
-    role = Column(String(30))
+    role = Column(String)
     pink_id = Column(String, ForeignKey('pink.id'))
     state = Column(Enum(LeafState), default=LeafState.waiting)
     track = Column(ARRAY(String), default=list())
@@ -50,13 +51,16 @@ class Leaf(BaseModel):
                                        'pink_id',
                                        name='_leaf_uc'), )
 
-    def __init__(self, proj: Proj, dep: Dep, role: str, pink: Pink):
-        if dep not in pink.deps:
+    def __init__(self, proj: Proj, freerole_id, pink: Pink):
+        freerole = query_freerole(id_=freerole_id)
+        if freerole.dep not in pink.deps:
             raise NotQualifiedToPick()
-        super().__init__(proj=proj, dep=dep, role=role, pink=pink)
+        super().__init__(proj=proj,
+                         dep=freerole.dep,
+                         role=freerole.role,
+                         pink=pink,
+                         timestamp=g.now)
         self.id = generate_id(15)
-        self.timestamp = g.now
-        self.proj.progress.take_role(dep=dep, role=role)
         self.proj.call_elf(dep=None, mango=None, pos=None)
 
     def drop(self, force: bool = False) -> None:
@@ -110,7 +114,7 @@ class Leaf(BaseModel):
 class Mango(BaseModel):
     __tablename__ = 'mango'
 
-    id = Column(String(18), primary_key=True)
+    id = Column(String, primary_key=True)
     leaf_id = Column(String, ForeignKey('leaf.id', ondelete='CASCADE'))
     mtype = Column(Enum(MangoType))
     fp = Column(LargeBinary(32))
@@ -134,7 +138,7 @@ class Mango(BaseModel):
         if self.mtype is MangoType.unknown:
             raise UnknowType()
         if not is_allowed_type(self.dep, self.mtype):
-            raise NotAllowedType(mtype=self.mtype)
+            raise UnallowedType(mtype=self.mtype)
         # fetch info
         if self.mtype // 10 == 5:
             self.metainfo = get_audio_info(path=path)

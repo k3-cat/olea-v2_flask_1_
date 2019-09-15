@@ -15,13 +15,13 @@ from .pwd_tools import WEAK_MAX, is_common_pwd, measure_strength
 class Pink(BaseModel):
     __tablename__ = 'pink'
 
-    id = Column(String(9), primary_key=True)
-    name = Column(String(20), unique=True)
-    qq = Column(String(10))
-    line = Column(String(30))
-    email = Column(String(40))
+    id = Column(String, primary_key=True)
+    name = Column(String, unique=True)
+    qq = Column(String)
+    line = Column(String)
+    email = Column(String)
     deps = Column(ArrayOfEnum(Enum(Dep)))
-    _pwd = Column(String(128))
+    _pwd = Column(String)
     cc = Column(Integer, default=0)
     la = Column(DateTime)
     active = Column(Boolean, default=True)

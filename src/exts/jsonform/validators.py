@@ -3,7 +3,7 @@ import re
 from .errors import ValidationError
 
 
-class Regexp(object):
+class Regexp():
     """
     Validates the field against a user provided regexp.
 

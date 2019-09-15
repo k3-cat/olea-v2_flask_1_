@@ -1,6 +1,6 @@
 from flask import jsonify
 
-from auth import ta
+from auth import login_required, permission_required
 from exts import db
 
 from . import journal_bp
@@ -10,7 +10,7 @@ from .models import Apl, Txn
 
 
 @journal_bp.route('/apply', methods=['POST'])
-@ta.login_required
+@login_required
 def apply():
     form = Apply()
     apl = Apl(reason=form.reason.data, amount=form.amount.data)
@@ -25,9 +25,8 @@ def get_last_txn():
     return jsonify({'id': last_txn.id})
 
 
-# europaea
 @journal_bp.route('/transfer', methods=['POST'])
-@ta.login_required
+@permission_required(perm='journal.transfer')
 def transfer():
     form = Transfer()
     apl = Apl.query.get(form.aid.data)

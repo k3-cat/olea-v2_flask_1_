@@ -1,7 +1,7 @@
 import redis
 
 
-class FlaskRedis(object):
+class FlaskRedis():
     def __init__(self, strict=True, **kwargs):
         self._redis_client = None
         self.provider_class = redis.StrictRedis if strict else redis.Redis

@@ -3,7 +3,7 @@ from typing import Dict
 import requests
 
 
-class MailGunAPI(object):
+class MailGunAPI():
     def __init__(self, config: Dict[str, str]):
         domain: str = config['MAILGUN_DOMAIN']
         self.base: str = f'https://api.eu.mailgun.net/v3/{domain}'

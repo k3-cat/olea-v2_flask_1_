@@ -1,31 +1,27 @@
+from common_errors import AccessDenied, NonExistedObj
 from olea.error_handler import OleaException
 
-
-class PinkNotExist(OleaException):
-    def __init__(self):
-        super().__init__(code='3MVG', parms=None)
+__all__ = [
+    'AccessDenied', 'NonExistedObj', 'DuplicatePink', 'PwdTooWeek',
+    'CommonPwd', 'PwdTooShort'
+]
 
 
 class DuplicatePink(OleaException):
     def __init__(self):
-        super().__init__(code='JLKC', parms=None)
-
-
-class AccessDenied(OleaException):
-    def __init__(self):
-        super().__init__(code='I2NT', parms=None)
+        super().__init__(code='JLKC')
 
 
 class PwdTooWeek(OleaException):
     def __init__(self, strength: float):
-        super().__init__(code='DZ7H', parms={'strength': str(strength)})
+        super().__init__(code='DZ7H', strength=str(strength))
 
 
 class CommonPwd(OleaException):
     def __init__(self):
-        super().__init__(code='QNL2', parms=None)
+        super().__init__(code='QNL2')
 
 
 class PwdTooShort(OleaException):
     def __init__(self):
-        super().__init__(code='P1GU', parms=None)
+        super().__init__(code='P1GU')

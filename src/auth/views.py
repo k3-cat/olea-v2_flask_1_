@@ -2,12 +2,13 @@ from flask import g, jsonify
 
 from exts import db
 from pink.models import Pink
-from pink.utils import get_pink
+from pink.utils import query_pink
 
-from . import auth_bp, ta
+from . import auth_bp, login_required
 from .errors import InvalidCredential
-from .forms import Login, ModiELemon, SetPwd
-from .models import ELemon, Lemon
+from .forms import Login, SetPubKey, SetPwd
+from .models import Lemon
+from .utils import query_duck
 
 
 @auth_bp.route('/login', methods=['POST'])
@@ -26,7 +27,7 @@ def login():
 
 
 @auth_bp.route('/revork', methods=['POST'])
-@ta.login_required
+@login_required
 def revork():
     db.session.delete(g.lemon)
     db.session.commit()
@@ -34,37 +35,31 @@ def revork():
 
 
 @auth_bp.route('/revork_all', methods=['POST'])
-@ta.login_required
+@login_required
 def revork_all():
-    for lemon in get_pink(g.pink_id).lemons:
+    for lemon in query_pink(g.pink_id).lemons:
         db.session.delete(lemon)
     db.session.commit()
     return jsonify({})
 
 
 @auth_bp.route('/set_pwd', methods=['POST'])
-@ta.login_required
+@login_required
 def set_pwd():
     form = SetPwd()
-    pink: Pink = get_pink(g.pink_id)
+    pink: Pink = query_pink(g.pink_id)
     pink.pwd = form['pwd']
     db.session.add(pink)
     db.session.commit()
     return jsonify({})
 
 
-@auth_bp.route('/modi_eleamon', methods=['POST'])
-def modi_eleamon():
-    form = ModiELemon()
-    elemon: ELemon = form['pink'].elemon
-    if not elemon:
-        pink: Pink = Pink.query.get(form['pink'])
-        # ?check
-        elemon = ELemon(pink=pink)
-    elemon.modi(form['asign'], form['revork'])
-    if elemon.perms:
-        db.session.add(elemon)
-    else:
-        db.session.delete(elemon)
+@auth_bp.route('/set_pub_key', methods=['POST'])
+@login_required
+def set_pub_key():
+    form = SetPubKey()
+    duck = query_duck(g.pink_id)
+    duck.set_pub_key(form['pub_key'])
+    db.session.add(duck)
     db.session.commit()
-    return jsonify({'key': elemon.key})
+    return jsonify({})

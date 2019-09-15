@@ -1,41 +1,37 @@
+from common_errors import AccessDenied, NonExistedObj
 from olea.error_handler import OleaException
+
+__all__ = [
+    'AccessDenied', 'NonExistedObj', 'NoFileSubmited', 'DuplicateLeaf',
+    'NotQualifiedToPick', 'StateLocked', 'UnallowedType', 'UnknowType'
+]
 
 
 class NoFileSubmited(OleaException):
     def __init__(self):
-        super().__init__(code='RRKY', parms=None)
-
-
-class LeafNotExist(OleaException):
-    def __init__(self):
-        super().__init__(code='BPS8', parms=None)
-
-
-class AccessDenied(OleaException):
-    def __init__(self):
-        super().__init__(code='0GB9', parms=None)
+        super().__init__(code='RRKY')
 
 
 class DuplicateLeaf(OleaException):
     def __init__(self):
-        super().__init__(code='VT39', parms=None)
+        super().__init__(code='VT39')
 
 
 class NotQualifiedToPick(OleaException):
     def __init__(self):
-        super().__init__(code='CWAI', parms=None)
+        super().__init__(code='CWAI')
 
 
 class StateLocked(OleaException):
     def __init__(self, current):
-        super().__init__(code='L5OM', parms={'curret': current.name})
+        super().__init__(code='L5OM', curret=current.name)
 
 
-class NotAllowedType(OleaException):
+class UnallowedType(OleaException):
     def __init__(self, mtype):
-        super().__init__(code='C3D8', parms={'type': mtype})
+        super().__init__(code='C3D8', type=mtype)
 
 
 class UnknowType(OleaException):
     def __init__(self):
-        super().__init__(code='84RX', parms=None)
+        super().__init__(code='84RX')

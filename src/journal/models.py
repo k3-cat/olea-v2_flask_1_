@@ -12,7 +12,7 @@ from .errors import JournalUpdated
 class Apl(BaseModel):
     __tablename__ = 'apl'
 
-    id = Column(String(6), primary_key=True)
+    id = Column(String, primary_key=True)
     pink_id = Column(String, ForeignKey('pink.id'))
     amount = Column(Integer)
     reason = Column(Text)
@@ -29,7 +29,7 @@ class Txn(BaseModel):
     previous_id = Column(LargeBinary(32), ForeignKey('txn.id'))
     debit = Column(Integer)
     credit = Column(Integer)
-    reason = Column(String(100))
+    reason = Column(String)
     pink_id = Column(String, ForeignKey('pink.id'))
     timestamp = Column(DateTime)
 
