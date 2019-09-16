@@ -33,4 +33,4 @@ class FlaskRedis():
         del self._redis_client[name]
 
 
-redis_client = FlaskRedis()
+redis_ = FlaskRedis()

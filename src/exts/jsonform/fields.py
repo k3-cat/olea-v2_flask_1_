@@ -21,8 +21,8 @@ class StringField(Field):
 
 
 class IntegerField(Field):
-    def __init__(self, default=0, min_val=None, max_val=None, **kwargs):
-        super().__init__(default=default, **kwargs)
+    def __init__(self, min_val=None, max_val=None, **kwargs):
+        super().__init__(**kwargs)
         self.min_val = min_val
         self.max_val = max_val
 
@@ -37,8 +37,8 @@ class IntegerField(Field):
 
 
 class FloatField(Field):
-    def __init__(self, default=0, min_val=None, max_val=None, **kwargs):
-        super().__init__(default=default, **kwargs)
+    def __init__(self, min_val=None, max_val=None, **kwargs):
+        super().__init__(**kwargs)
         self.min_val = min_val
         self.max_val = max_val
 

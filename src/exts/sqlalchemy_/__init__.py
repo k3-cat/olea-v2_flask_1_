@@ -1,8 +1,6 @@
 from sqlalchemy import Column, ForeignKey, UniqueConstraint
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
-from psycopg2.errorcodes import UNIQUE_VIOLATION
 
 from .main import ModelBase, SQLAlchemy
 

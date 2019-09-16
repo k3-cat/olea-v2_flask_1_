@@ -2,14 +2,8 @@ from common_errors import AccessDenied, NonExistedObj
 from olea.error_handler import OleaException
 
 __all__ = [
-    'AccessDenied', 'NonExistedObj', 'DuplicatePink', 'PwdTooWeek',
-    'CommonPwd', 'PwdTooShort'
+    'AccessDenied', 'NonExistedObj', 'PwdTooWeek', 'CommonPwd', 'PwdTooShort'
 ]
-
-
-class DuplicatePink(OleaException):
-    def __init__(self):
-        super().__init__(code='JLKC')
 
 
 class PwdTooWeek(OleaException):

@@ -19,7 +19,6 @@
             "env": {
                 "FLASK_APP": "olea",
                 "FLASK_ENV": "dev",
-                "FLASK_DEBUG": "1"
             },
             "cwd": "${workspaceFolder}/src",
             "args": [
@@ -37,7 +36,6 @@
             "env": {
                 "FLASK_APP": "olea",
                 "FLASK_ENV": "dev",
-                "FLASK_DEBUG": "1"
             },
             "cwd": "${workspaceFolder}/src",
             "args": [

@@ -9,3 +9,8 @@ class NonExistedObj(OleaException):
 class AccessDenied(OleaException):
     def __init__(self, obj: object):
         super().__init__(code='UJCB', obj=obj.__name__)
+
+
+class DuplicatedObj(OleaException):
+    def __init__(self, obj: object):
+        super().__init__(code='JQ9I', obj=obj.__name__)
