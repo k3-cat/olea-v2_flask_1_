@@ -1,4 +1,5 @@
 from olea.error_handler import OleaException
+from common_errors import NonExistedObj
 
 
 class JournalUpdated(OleaException):

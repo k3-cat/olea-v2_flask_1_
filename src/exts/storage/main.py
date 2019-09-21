@@ -28,13 +28,11 @@ class Storage():
         app.extensions['storage'] = self
 
     def upload(self, mango: Mango, path: str) -> bool:
-        """Uploads a file to the bucket."""
         blob = self.bucket.blob(f'{mango.leaf.proj.id}/{mango.id}')
         blob.upload_from_filename(path)
         return True
 
     def download(self, mango: Mango) -> bool:
-        """Downloads a blob from the bucket."""
         filename = f'{self.app.root_path}/{mango.id}'
         if os.path.exists(filename):
             return True

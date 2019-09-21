@@ -8,7 +8,8 @@ from enums import Dep, ProgressState, ProjCat
 from exts.id_tools import generate_id
 from exts.sqlalchemy_ import (BaseModel, Column, ForeignKey, UniqueConstraint,
                               relationship)
-from exts.sqlalchemy_.types import JSON, Date, DateTime, Enum, String, Text
+from exts.sqlalchemy_.types import (JSON, Boolean, Date, DateTime, Enum, ARRAY,
+                                    String, Text)
 
 from .elfs import run_elfs
 from .errors import BookedBefore, CancellingRejected, IsBooked, RolesExisted
@@ -28,19 +29,19 @@ class Proj(BaseModel):
     pub_date = Column(Date)
     suff = Column(String)
     cat = Column(Enum(ProjCat))
-    note = Column(Text)
+    _note = Column(ARRAY(Text))
     complexity = Column(JSON)
     finish_at = Column(DateTime, index=True)
 
     leafs = relationship('Leaf',
                          back_populates='proj',
-                         cascade="all, delete-orphan",
+                         cascade='all, delete-orphan',
                          lazy='dynamic',
                          passive_deletes=True)
     progress = relationship('Progress',
                             uselist=False,
                             back_populates='proj',
-                            cascade="all, delete-orphan",
+                            cascade='all, delete-orphan',
                             passive_deletes=True)
     __table_args__ = (UniqueConstraint('source',
                                        'pub_date',
@@ -51,17 +52,20 @@ class Proj(BaseModel):
     def display_title(self):
         return f'{self.title}({self.suff})' if self.suff else self.title
 
+    @property
+    def note(self) -> list:
+        return self._note
+
+    @note.setter
+    def note(self, note, static: bool = False):
+        self._note[not static] = note.replace('$|\n', ' ')
+
     def __init__(self, base: str, pub_date, cat, suff, note):
         super().__init__(pub_date=pub_date, suff=suff, cat=cat, note=note)
         self.title, self.source = build_basic_info(base=base, cat=cat)
         self.id = generate_id(12)
         self.complexity = build_complexity_info(self)
         Progress(proj=self)
-
-    def set_note(self, note: str, static: bool = False):
-        note_stack = self.note.split('$|\n')
-        note_stack[not static] = note.replace('$|\n', ' ')
-        self.note = '$|\n'.join(note_stack)
 
     def call_elf(self, dep: Dep, mango: Mango, pos: bool) -> None:
         run_elfs(proj=self, dep=dep, mango=mango, pos=pos)
@@ -116,7 +120,7 @@ class Progress(BaseModel):
     proj = relationship('Proj', back_populates='progress')
     freeroles = relationship('FreeRole',
                              back_populates='progress',
-                             cascade="all, delete-orphan",
+                             cascade='all, delete-orphan',
                              lazy='dynamic',
                              passive_deletes=True)
 
@@ -148,6 +152,13 @@ class Progress(BaseModel):
         self.booking_pink = pink_id
         self.booking_history[pink_id] = g.now
 
+    def put_role(self, leaf_id: str):
+        freerole: FreeRole = self.freeroles.filter_by(leaf_id=leaf_id).first()
+        freerole.leaf_id = None
+        if freerole.proxy:
+            # TODO: re-
+            pass
+
     def cancell_booking(self, pink_id: str) -> None:
         if self.booking_pink != pink_id:
             raise CancellingRejected()
@@ -162,13 +173,16 @@ class FreeRole(BaseModel):
                          ForeignKey('progress.proj_id', ondelete='CASCADE'))
     dep = Column(Enum(Dep))
     role = Column(String)
-    leaf_id = Column(String, ForeignKey('leaf.id', ondelete='SET NULL'))
+    leaf_id = Column(String)
+    proxy = Column(Boolean, default=False)
+    requirements = Column(ARRAY(String))
 
     progress = relationship('Progress', back_populates='freeroles')
 
     def __init__(self, progress_id: str, dep: Dep, role: str):
         super().__init__(progress_id=progress_id, dep=dep, role=role)
         self.id = generate_id(9)
+        self.requirements = list()
 
     def to_dict(self):
         return (self.id, self.dep.name, self.role)

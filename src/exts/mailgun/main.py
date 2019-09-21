@@ -31,3 +31,15 @@ class MailGun():
                values: Dict[str, str]):
         maildata = build_message(subject, to, template, values)
         self.mailgun_api.send(maildata)
+
+    def validate_adr(self, address: str):
+        result = self.mailgun_api.validate_adr(address).json()
+        result.pop('address')
+        deliverable = result.pop('result')
+        if deliverable == 'deliverable':
+            result['deliverable'] = True
+        elif deliverable == 'undeliverable':
+            result['deliverable'] = False
+        else:
+            result['deliverable'] = None
+        return result

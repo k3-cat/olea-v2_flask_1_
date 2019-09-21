@@ -5,7 +5,7 @@ from proj.models import Proj
 
 
 def set_shellcontext(app):
-    """set shell context objects."""
+    '''set shell context objects.'''
     def shell_context():
         return {'app': app, 'db': db, 'Pink': Pink, 'Proj': Proj, 'Leaf': Leaf}
 

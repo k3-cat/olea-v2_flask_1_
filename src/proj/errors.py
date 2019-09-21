@@ -1,16 +1,11 @@
 from olea.error_handler import OleaException
-from common_errors import AccessDenied, NonExistedObj
+from common_errors import AccessDenied, NonExistedObj, DuplicateObj
 
 __all__ = [
-    'AccessDenied', 'NonExistedObj', 'DuplicateProj', 'RolesExisted',
+    'AccessDenied', 'NonExistedObj', 'DuplicateObj', 'RolesExisted',
     'InvalidSource', 'UnableToFetchTitle', 'IsBooked', 'BookedBefore',
     'CancellingRejected'
 ]
-
-
-class DuplicateProj(OleaException):
-    def __init__(self):
-        super().__init__(code='QUSO')
 
 
 class RolesExisted(OleaException):

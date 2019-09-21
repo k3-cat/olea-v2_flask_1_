@@ -1,27 +1,35 @@
+import base64
+import datetime
 from functools import wraps
 
-from flask import g, make_response, request
+from flask import g, request
 
 from . import login_required
+from .errors import InvalidEuropaeaRequet
 from .utils import query_duck
 
 
 class DuckPermission():
-    def __init__(self):
-        res = make_response('Access Denied')
-        res.status_code = 403
-        self.error_response = res
-
     def permission_required(self, perm):
         def real_decorator(f):
             @wraps(f)
             def decorated(*args, **kwargs):
                 duck = query_duck(g.pink_id)
-
-                if not duck.has_perm(perm) or not duck.check_signature():
-                    # Clear TCP receive buffer of any pending data
-                    request.data
-                    return self.error_response
+                try:
+                    signature = base64.decodebytes(
+                        request.headers['signature'])
+                    timestamp = datetime.datetime.fromisoformat(
+                        request.headers['timestamp'])
+                except (KeyError, ValueError):
+                    raise InvalidEuropaeaRequet()
+                if not g.now - datetime.timedelta(
+                        seconds=5) <= timestamp < g.now:
+                    raise InvalidEuropaeaRequet()
+                duck.has_perm(perm)
+                duck.check_signature(
+                    signature=signature,
+                    content=f'{timestamp.isoformat()}|{request.get_json()}'.
+                    encode('utf-8'))
                 # TODO: log here
                 return f(*args, **kwargs)
 

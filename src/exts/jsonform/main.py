@@ -24,7 +24,7 @@ class Field():
         self._data = None
         self.validators = validators or tuple()
         self.optional = optional
-        self.default = default
+        self.default = default or self._default
         self.empty = False
 
     @property
@@ -97,7 +97,7 @@ class JsonForm():
                 errors[name] = 'invalid field'
                 continue
             try:
-                if name not in jsondata or not self._fields[name]:
+                if name not in jsondata or not jsondata[name]:
                     self._fields[name].mark_empty()
                 else:
                     self._fields[name].process_data(jsondata[name])
@@ -114,7 +114,7 @@ class JsonForm():
             inline = getattr(self, f'validate_{name}', None)
             if inline is not None:
                 try:
-                    inline(self, field)
+                    inline(field)
                 except ValidationError as e:
                     field_errors.append(str(e))
             if field_errors:

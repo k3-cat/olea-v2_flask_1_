@@ -36,7 +36,6 @@ def special_save(f, path: str) -> (bytes, MangoType):
 
 TYPE_ALLOWED = {
     Dep.d51: (MangoType.audio_flac, ),
-    Dep.d52: (MangoType.audio_flac, ),
     Dep.d59: (MangoType.audio_flac, ),
     Dep.d60: (MangoType.picture_png, ),
     Dep.d71: (MangoType.audio_flac, ),

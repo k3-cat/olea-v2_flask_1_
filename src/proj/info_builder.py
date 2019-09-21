@@ -4,7 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from enums import ProjCat
-from exts import redis_client
+from exts import redis
 
 from .errors import InvalidSource, UnableToFetchTitle
 
@@ -12,11 +12,11 @@ CN_SITE_URL = 'http://scp-wiki-cn.wikidot.com'
 
 
 def fetch_web(url):
-    web_page = redis_client.get(url)
+    web_page = redis.get(url)
     if not web_page:
         web_page = requests.get(f'{CN_SITE_URL}/{url}').text
-        redis_client[url] = web_page
-        redis_client.pexpire(url, ex=180)
+        redis[url] = web_page
+        redis.pexpire(url, ex=180)
     soup = BeautifulSoup(web_page, 'lxml')
     return soup.find('div', {'id': 'main-content'})
 

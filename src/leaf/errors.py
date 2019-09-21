@@ -1,8 +1,8 @@
-from common_errors import AccessDenied, NonExistedObj
+from common_errors import AccessDenied, NonExistedObj, DuplicateObj
 from olea.error_handler import OleaException
 
 __all__ = [
-    'AccessDenied', 'NonExistedObj', 'NoFileSubmited', 'DuplicateLeaf',
+    'AccessDenied', 'NonExistedObj', 'DuplicateObj', 'NoFileSubmited',
     'NotQualifiedToPick', 'StateLocked', 'UnallowedType', 'UnknowType'
 ]
 
@@ -10,11 +10,6 @@ __all__ = [
 class NoFileSubmited(OleaException):
     def __init__(self):
         super().__init__(code='RRKY')
-
-
-class DuplicateLeaf(OleaException):
-    def __init__(self):
-        super().__init__(code='VT39')
 
 
 class NotQualifiedToPick(OleaException):

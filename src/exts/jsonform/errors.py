@@ -2,8 +2,8 @@ from olea.error_handler import OleaException
 
 
 class ValidationError(ValueError):
-    def __init__(self, message: str = ''):
-        ValueError.__init__(self, message)
+    def __init__(self, msg: str = ''):
+        ValueError.__init__(self, msg)
 
 
 class FormError(OleaException):

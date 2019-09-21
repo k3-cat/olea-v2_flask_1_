@@ -4,7 +4,7 @@ from auth import login_required, permission_required
 from exts import db
 
 from . import journal_bp
-from .errors import AplNotExist
+from .errors import NonExistedObj
 from .forms import Apply, Transfer
 from .models import Apl, Txn
 
@@ -31,7 +31,7 @@ def transfer():
     form = Transfer()
     apl = Apl.query.get(form.aid.data)
     if not apl:
-        raise AplNotExist()
+        raise NonExistedObj(cls=Apl)
     txn = Txn(debit=0,
               credit=apl.amount,
               reason=apl.reason,

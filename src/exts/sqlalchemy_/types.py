@@ -16,9 +16,9 @@ class ArrayOfEnum(TypeDecorator):
         super_rp = super(ArrayOfEnum, self).result_processor(dialect, coltype)
 
         def handle_raw_string(value):
-            inner = re.match(r"^{(.*)}$", value).group(1)
+            inner = re.match(r'^{(.*)}$', value).group(1)
 
-            return inner.split(",") if inner else []
+            return inner.split(',') if inner else []
 
         def process(value):
             if value is None:

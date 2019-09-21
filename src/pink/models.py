@@ -3,7 +3,7 @@ from typing import Any, Dict
 from enums import Dep, LeafState
 from exts.id_tools import generate_id
 from exts.sqlalchemy_ import BaseModel, Column, relationship
-from exts.sqlalchemy_.types import (ArrayOfEnum, Boolean, DateTime, Enum,
+from exts.sqlalchemy_.types import (JSON, ArrayOfEnum, Boolean, DateTime, Enum,
                                     Integer, String)
 from leaf.models import Leaf
 
@@ -25,6 +25,7 @@ class Pink(BaseModel):
     cc = Column(Integer, default=0)
     la = Column(DateTime)
     active = Column(Boolean, default=True)
+    metainfo = Column(JSON)
 
     leafs = relationship('Leaf',
                          back_populates='pink',
@@ -36,7 +37,7 @@ class Pink(BaseModel):
         return self._pwd
 
     @pwd.setter
-    def pwd(self, pwd: str) -> None:
+    def pwd(self, pwd: str):
         if len(pwd) < 8:
             raise PwdTooShort()
         if is_common_pwd(pwd):
@@ -49,6 +50,7 @@ class Pink(BaseModel):
     def __init__(self, name: str, qq: str, line: str, email: str, deps: list):
         super().__init__(name=name, qq=qq, line=line, email=email, deps=deps)
         self.id = generate_id(9)
+        self.metadata = dict()
 
     def verify_pwd(self, pwd: str) -> bool:
         return olea_context.verify(pwd, self._pwd)

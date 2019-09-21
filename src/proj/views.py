@@ -9,7 +9,7 @@ from exts import db
 from exts.sqlalchemy_ import UNIQUE_VIOLATION, IntegrityError
 
 from . import proj_bp
-from .errors import DuplicateProj
+from .errors import DuplicateObj
 from .forms import Create, EditNote, InitRoles, SingleProj
 from .models import Proj
 from .utils import query_proj
@@ -40,7 +40,7 @@ def edit_note():
     proj.set_note(form['note'])
     db.session.add(proj)
     db.session.commit()
-    return jsonify({'note': proj.note.split('$|\n', 1)})
+    return jsonify({})
 
 
 @proj_bp.route('/book', methods=['POST'])
@@ -51,7 +51,7 @@ def book():
     progress.book(pink_id=g.pink_id)
     db.session.add(progress)
     db.session.commit()
-    return jsonify({'booking_user': progress.booking_pink})
+    return jsonify({})
 
 
 @proj_bp.route('/cancll_booking', methods=['POST'])
@@ -91,6 +91,6 @@ def create():
         db.session.commit()
     except IntegrityError as e:
         if e.orig.pgcode == UNIQUE_VIOLATION:
-            raise DuplicateProj()
+            raise DuplicateObj(obj=proj)
         raise
     return jsonify({'id': proj.id})

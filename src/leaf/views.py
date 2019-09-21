@@ -5,10 +5,10 @@ from auth import login_required
 from exts import db
 from exts.sqlalchemy_ import UNIQUE_VIOLATION, IntegrityError
 from pink.utils import query_pink
-from proj.utils import query_proj
+from proj.utils import query_freerole, query_proj
 
 from . import leaf_bp
-from .errors import DuplicateLeaf, NoFileSubmited
+from .errors import DuplicateObj, NoFileSubmited
 from .forms import Pick, SingleLeaf
 from .models import Leaf
 from .utils import query_leaf
@@ -18,16 +18,14 @@ from .utils import query_leaf
 @login_required
 def pick():
     form = Pick()
-    leaf = Leaf(proj=query_proj(form['proj']),
-                dep=form['dep'],
-                role=form['role'],
+    leaf = Leaf(freerole=query_freerole(id_=form['freerole_id']),
                 pink=query_pink(g.pink_id))
     db.session.add(leaf)
     try:
         db.session.commit()
     except IntegrityError as e:
         if e.orig.pgcode == UNIQUE_VIOLATION:
-            raise DuplicateLeaf()
+            raise DuplicateObj(obj=leaf)
         raise
     return jsonify({'id': leaf.id})
 

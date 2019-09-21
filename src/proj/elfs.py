@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from flask import g
 
 from enums import Dep, LeafState, ProgressState
-from leaf.models import Leaf
+#from leaf.models import Leaf
 
 if TYPE_CHECKING:
     from .models import Proj
@@ -20,18 +20,16 @@ def b_s5(proj: Proj) -> bool:
         #     leaf.state = LeafState.droped_e
         #     leaf.track.append(f'expire|{g.now}')
         return False
-    for leaf in proj.leafs.filter(Leaf.dep.in_(
-        (Dep.d51, Dep.d52, Dep.d59))).all():
-        leaf.state = LeafState.normal
-        leaf.track.append(f'begin|{g.now}')
+    #for leaf in proj.leafs.filter(Leaf.dep.in_((Dep.d51, Dep.d59))).all():
+    #    leaf.state = LeafState.normal
+    #    leaf.track.append(f'begin|{g.now}')
     proj.progress.state = ProgressState.s5
     return True
 
 
 def b_s7_1(proj: Proj) -> bool:
     unfinshed = proj.progress.unfinished
-    if unfinshed.get(Dep.d51, 0) + unfinshed.get(Dep.d52, 0) + unfinshed.get(
-            Dep.d59, 0) > 0:
+    if unfinshed.get(Dep.d51, 0) + unfinshed.get(Dep.d59, 0) > 0:
         return False
     for leaf in proj.leafs.filter_by(dep=Dep.d71).all():
         leaf.state = LeafState.normal

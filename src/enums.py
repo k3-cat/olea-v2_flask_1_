@@ -11,7 +11,6 @@ class Dep(enum.IntEnum):
     d30 = 30
     d40 = 40
     d51 = 51
-    d52 = 52
     d59 = 59
     d60 = 60
     d71 = 71

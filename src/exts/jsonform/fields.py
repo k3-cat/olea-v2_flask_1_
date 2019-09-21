@@ -5,8 +5,10 @@ from .main import Field
 
 
 class StringField(Field):
-    def __init__(self, default='', min_len=0, max_len=None, **kwargs):
-        super().__init__(default=default, **kwargs)
+    _default = ''
+
+    def __init__(self, min_len=0, max_len=None, **kwargs):
+        super().__init__(**kwargs)
         self.min_len = min_len
         self.max_len = max_len
 
@@ -21,13 +23,15 @@ class StringField(Field):
 
 
 class IntegerField(Field):
-    def __init__(self, default=0, min_val=None, max_val=None, **kwargs):
-        super().__init__(default=default, **kwargs)
+    _default = 0
+
+    def __init__(self, min_val=None, max_val=None, **kwargs):
+        super().__init__(**kwargs)
         self.min_val = min_val
         self.max_val = max_val
 
     def process_data(self, value):
-        if not isinstance(value, bool):
+        if not isinstance(value, int):
             raise ValueError('invalid integer')
         if self.min_val and not self.min_val <= value:
             raise ValueError('too samll')
@@ -37,13 +41,15 @@ class IntegerField(Field):
 
 
 class FloatField(Field):
-    def __init__(self, default=0, min_val=None, max_val=None, **kwargs):
-        super().__init__(default=default, **kwargs)
+    _default = 0.0
+
+    def __init__(self, min_val=None, max_val=None, **kwargs):
+        super().__init__(**kwargs)
         self.min_val = min_val
         self.max_val = max_val
 
     def process_data(self, value):
-        if not isinstance(value, bool):
+        if not isinstance(value, float):
             raise ValueError('invalid float')
         if self.min_val and not self.min_val <= value:
             raise ValueError('too samll')

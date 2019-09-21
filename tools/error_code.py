@@ -28,5 +28,5 @@ def check_err_code(code):
         print('invaid')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     generate_err_code(4)

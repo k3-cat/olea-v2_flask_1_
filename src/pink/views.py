@@ -3,11 +3,11 @@ from typing import List
 from flask import g, jsonify
 
 from auth import login_required, permission_required
-from exts import db, mailgun_client
+from exts import db, mailgun
 from exts.sqlalchemy_ import UNIQUE_VIOLATION, IntegrityError
 
 from . import pink_bp
-from .errors import DuplicatePink
+from .errors import DuplicateObj
 from .forms import Create, SinglePink, UpdateInfo
 from .models import Pink
 from .pwd_tools import generate_pwd
@@ -72,15 +72,15 @@ def create():
         db.session.commit()
     except IntegrityError as e:
         if e.orig.pgcode == UNIQUE_VIOLATION:
-            raise DuplicatePink()
+            raise DuplicateObj(obj=pink)
         raise
-    mailgun_client.send(subject='初次见面, 这里是olea',
-                        to=(pink.email, ),
-                        template='new_pink',
-                        values={
-                            'name': pink.name,
-                            'pwd': pwd
-                        })
+    mailgun.send(subject='初次见面, 这里是olea',
+                 to=(pink.email, ),
+                 template='new_pink',
+                 values={
+                     'name': pink.name,
+                     'pwd': pwd
+                 })
     return jsonify({'id': pink.id})
 
 
@@ -90,13 +90,13 @@ def reset_pwd():
     pink = query_pink(SinglePink()['pink'])
     pwd = generate_pwd()
     pink.pwd = pwd
-    mailgun_client.send(subject='新的口令',
-                        to=[pink.email],
-                        template='reset_pink',
-                        values={
-                            'name': pink.name,
-                            'pwd': pwd
-                        })
+    mailgun.send(subject='新的口令',
+                 to=[pink.email],
+                 template='reset_pink',
+                 values={
+                     'name': pink.name,
+                     'pwd': pwd
+                 })
     db.session.add(pink)
     db.session.commit()
     return jsonify({})

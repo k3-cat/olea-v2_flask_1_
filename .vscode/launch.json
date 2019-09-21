@@ -19,7 +19,23 @@
             "env": {
                 "FLASK_APP": "olea",
                 "FLASK_ENV": "dev",
-                "FLASK_DEBUG": "1"
+            },
+            "cwd": "${workspaceFolder}/src",
+            "args": [
+                "run",
+                "--no-debugger",
+                "--no-reload"
+            ],
+            "jinja": false
+        },
+        {
+            "name": "Run Server",
+            "type": "python",
+            "request": "launch",
+            "module": "flask",
+            "env": {
+                "FLASK_APP": "olea",
+                "FLASK_ENV": "prod",
             },
             "cwd": "${workspaceFolder}/src",
             "args": [
@@ -37,7 +53,6 @@
             "env": {
                 "FLASK_APP": "olea",
                 "FLASK_ENV": "dev",
-                "FLASK_DEBUG": "1"
             },
             "cwd": "${workspaceFolder}/src",
             "args": [

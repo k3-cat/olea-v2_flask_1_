@@ -6,7 +6,7 @@ from proj import proj_bp, views
 
 
 def register_blueprints(app):
-    """Register Flask blueprints."""
+    '''Register Flask blueprints.'''
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(leaf_bp, url_prefix='/leaf')
     app.register_blueprint(pink_bp, url_prefix='/pink')

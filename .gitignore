@@ -1,7 +1,8 @@
 __pycache__/
 env/
 
-.vscode/.ropeproject
+.vscode/
+*.code-workspace
 
 instance.py
 service_account.json

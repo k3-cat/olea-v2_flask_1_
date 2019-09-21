@@ -8,6 +8,18 @@ class InvalidCredential(OleaException):
         super().__init__(code='516O')
 
 
-class PubicKeyExisted(OleaException):
+class KeyHasExpired(OleaException):
+    def __init__(self, pub_key: bytes, expired_at):
+        super().__init__(code='WWXB',
+                         pub_key=base64.encodebytes(pub_key),
+                         expired_at=expired_at.isoformat())
+
+
+class InvalidSignature(OleaException):
     def __init__(self, pub_key: bytes):
-        super().__init__(code='516O', pub_key=base64.encodebytes(pub_key))
+        super().__init__(code='W3JI', pub_key=base64.encodebytes(pub_key))
+
+
+class InvalidEuropaeaRequet(OleaException):
+    def __init__(self):
+        super().__init__(code='NB4Y')

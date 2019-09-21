@@ -1,6 +1,6 @@
 from enums import ProjCat
-from exts.jsonform import BaseForm, ValidationError
-from exts.jsonform.fields import DateField, EnumField, StringField
+from exts.jsonform import BaseForm
+from exts.jsonform.fields import DateField, EnumField, StringField, ListField
 from exts.jsonform.validators import Regexp
 
 from .custom_form_fields import RolesField
@@ -21,14 +21,8 @@ class Create(BaseForm):
     base = StringField()
     pub_date = DateField(pattern='%d-%b-%Y')
     cat = EnumField(ProjCat)
-    note = StringField(optional=True, default='$|\n')
+    note = ListField(StringField(), min_entries=2, max_entries=2)
     suff = StringField(optional=True, default='')
-
-    def validate_note(self, field):
-        if not field.data:
-            field.data = '{N/A}'
-        if '$|\n' not in field.data:
-            raise ValidationError('wrong pattern of note')
 
 
 class InitRoles(BaseForm):

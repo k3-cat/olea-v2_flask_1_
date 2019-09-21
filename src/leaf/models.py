@@ -11,7 +11,6 @@ from exts.sqlalchemy_ import (BaseModel, Column, ForeignKey, UniqueConstraint,
                               relationship)
 from exts.sqlalchemy_.types import (ARRAY, JSON, Boolean, DateTime, Enum,
                                     LargeBinary, String)
-from proj.utils import query_freerole
 
 from .audio_tools import get_audio_info
 from .errors import NotQualifiedToPick, StateLocked, UnallowedType, UnknowType
@@ -38,12 +37,12 @@ class Leaf(BaseModel):
     proj = relationship('Proj', back_populates='leafs')
     mangos = relationship('Mango',
                           back_populates='leaf',
-                          cascade="all, delete-orphan",
+                          cascade='all, delete-orphan',
                           passive_deletes=True)
     schedule = relationship('Schedule',
                             back_populates='leaf',
                             uselist=False,
-                            cascade="all, delete-orphan",
+                            cascade='all, delete-orphan',
                             passive_deletes=True)
     __table_args__ = (UniqueConstraint('proj_id',
                                        'dep',
@@ -51,24 +50,24 @@ class Leaf(BaseModel):
                                        'pink_id',
                                        name='_leaf_uc'), )
 
-    def __init__(self, proj: Proj, freerole_id, pink: Pink):
-        freerole = query_freerole(id_=freerole_id)
+    def __init__(self, freerole, pink):
         if freerole.dep not in pink.deps:
             raise NotQualifiedToPick()
-        super().__init__(proj=proj,
+        super().__init__(proj_id=freerole.progress_id,
                          dep=freerole.dep,
                          role=freerole.role,
                          pink=pink,
                          timestamp=g.now)
         self.id = generate_id(15)
         self.proj.call_elf(dep=None, mango=None, pos=None)
+        freerole.take(leaf_id=self.id)
 
     def drop(self, force: bool = False) -> None:
         if self.state != LeafState.normal and not force:
             raise StateLocked(current=self.state)
         self.state = LeafState.droped_m if not force else LeafState.droped_f
         self.track.append(f'drop|{g.now}' if not force else f'f_drop|{g.now}')
-        self.proj.progress.put_role(dep=self.dep, role=self.role)
+        self.proj.progress.put_role(leaf_id=self.id)
 
     def f_drop(self) -> None:
         self.pink.cc += 1

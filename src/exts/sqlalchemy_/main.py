@@ -3,12 +3,12 @@ from sqlalchemy.orm import Query, class_mapper
 
 
 class Pagination(object):
-    """Class returned by `Query.paginate`. You can also construct
+    '''Class returned by `Query.paginate`. You can also construct
     it from any other SQLAlchemy query object if you are working
     with other libraries. Additionally it is possible to pass
     ``None`` as query object in which case the `prev` and `next`
     will no longer work.
-    """
+    '''
     def __init__(self, query, page, per_page, total, items):
         #: The query object that was used to create this pagination object.
         if not query:
@@ -47,25 +47,25 @@ class Pagination(object):
         self.has_next = self.page < self.pages
 
     def prev(self, error_out=False):
-        """Returns a `Pagination` object for the previous page."""
+        '''Returns a `Pagination` object for the previous page.'''
         return self.query.paginate(self.page - 1, self.per_page, error_out)
 
     def next(self, error_out=False):
-        """Returns a `Pagination` object for the next page."""
+        '''Returns a `Pagination` object for the next page.'''
         return self.query.paginate(self.page + 1, self.per_page, error_out)
 
 
 class BaseQuery(Query):
-    """The default query object used for models. This can be
+    '''The default query object used for models. This can be
     subclassed and replaced for individual models by setting
     the Model.query_class attribute. This is a subclass of a
     standard SQLAlchemy sqlalchemy.orm.query.Query class and
     has all the methods of a standard query as well.
-    """
+    '''
     def paginate(self, page, per_page=20, error_out=True):
-        """Return `Pagination` instance using already defined query
+        '''Return `Pagination` instance using already defined query
         parameters.
-        """
+        '''
         if error_out and page < 1:
             raise IndexError()
 
@@ -88,9 +88,9 @@ class BaseQuery(Query):
 
 
 class QueryProperty(object):
-    """Query property accessor which gives a model access to query capabilities
+    '''Query property accessor which gives a model access to query capabilities
     via `ModelBase.query` which is equivalent to ``session.query(Model)``.
-    """
+    '''
     def __init__(self, session):
         self.session = session
 
@@ -107,7 +107,7 @@ class QueryProperty(object):
 
 
 class ModelBase(object):
-    """Baseclass for custom user models."""
+    '''Baseclass for custom user models.'''
 
     #: the query class used. The `query` attribute is an instance
     #: of this class. By default a `BaseQuery` is used.
@@ -119,7 +119,7 @@ class ModelBase(object):
 
 
 class SQLAlchemy(SQLAlchemyBase):
-    """Flask extension that integrates alchy with Flask-SQLAlchemy."""
+    '''Flask extension that integrates alchy with Flask-SQLAlchemy.'''
     def __init__(self,
                  app=None,
                  use_native_unicode=True,
@@ -131,7 +131,7 @@ class SQLAlchemy(SQLAlchemyBase):
                                          session_options)
 
     def make_declarative_base(self, model, metadata=None):
-        """Creates or extends the declarative base."""
+        '''Creates or extends the declarative base.'''
         if self.Model is None:
             self.Model = super(SQLAlchemyBase, self).make_declarative_base()
         else:
