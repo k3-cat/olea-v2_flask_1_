@@ -1,6 +1,6 @@
 from flask import jsonify
 from sentry_sdk import init as sentry_sdk_init
-from sentry_sdk.integrations.flask import FlaskIntegration
+from sentry_sdk.integrations import flask, redis, sqlalchemy
 
 
 class OleaException(Exception):
@@ -15,6 +15,10 @@ def register_error_handlers(app):
         return jsonify({'code': e.code, 'parms': e.parms}), 409
 
     app.register_error_handler(OleaException, handle_olea_exceptions)
-    if not app.config.get('IGNORE_ERRORS', False):
+    if app.config.get('IGNORE_ERRORS', False):
         sentry_sdk_init(dsn=app.config['SENTRY_DSN'],
-                        integrations=[FlaskIntegration()])
+                        integrations=[
+                            flask.FlaskIntegration(),
+                            sqlalchemy.SqlalchemyIntegration(),
+                            redis.RedisIntegration()
+                        ])

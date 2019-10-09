@@ -1,17 +1,17 @@
 flask
 # (click)
+psycopg2
 # (sqlalchemy)
 flask_sqlalchemy
-psycopg2
 passlib
 argon2_cffi
 cryptography
 # (apscheduler)
 Flask-APScheduler
-sentry-sdk[flask]
-python-magic
 redis
-google-cloud-storage
+sentry-sdk[flask]
+boto3
+python-magic
 pydub
 requests
 bs4

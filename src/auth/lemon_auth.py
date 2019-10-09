@@ -1,7 +1,7 @@
 from functools import wraps
 
 from flask import abort, g, request
-
+from sentry_sdk import configure_scope
 from exts import db
 
 from .utils import query_lemon
@@ -26,6 +26,8 @@ class LemonAuth():
             db.session.commit()
             abort(401)
         g.pink_id = lemon.pink_id
+        with configure_scope() as scope:
+            scope.user = {'id': lemon.pink_id}
         return True
 
     def login_required(self, f):

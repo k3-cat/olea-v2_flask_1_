@@ -12,10 +12,6 @@ class FlaskRedis():
         self.provider_kwargs.update(kwargs)
         self._redis_client = self.provider_class.from_url(
             redis_url, **self.provider_kwargs)
-
-        if not app.config.get('FAKE_REDIS', False):
-            from fakeredis import FakeRedis
-            self.provider_class = FakeRedis
         if not hasattr(app, 'extensions'):
             app.extensions = {}
         app.extensions['redis'] = self

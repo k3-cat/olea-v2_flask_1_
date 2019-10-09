@@ -9,7 +9,8 @@ D71_DUE = datetime.timedelta(days=4)
 D72_DUE = datetime.timedelta(days=3)
 D73_DUE = datetime.timedelta(days=7)
 
-MAILGUN_DOMAIN = 'mail.k-olea.com'
+MAILGUN_DOMAIN = 'mail.cybil.xyz'
 MAILGUN_SENDER = 'olea'
 
-BUCKET_NAME = 'olea-storage'
+SPACE_NAME = 'olea-storage'
+SPACE_REGION = 'sfo2'

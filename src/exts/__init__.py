@@ -6,7 +6,7 @@ from .flask_redis_ import FlaskRedis
 
 redis = FlaskRedis()
 mailgun = MailGun()
-storage = Storage()
+#storage = Storage()
 
 
 def init_extensions(app):
@@ -14,6 +14,6 @@ def init_extensions(app):
     redis.init_app(app)
     scheduler.init_app(app)
     mailgun.init_app(app)
-    storage.init_app(app)
+    #storage.init_app(app)
 
     scheduler.start()
