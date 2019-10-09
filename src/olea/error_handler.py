@@ -11,11 +11,11 @@ class OleaException(Exception):
 
 
 def register_error_handlers(app):
+    @app.register_error_handler(OleaException)
     def handle_olea_exceptions(e):
         return jsonify({'code': e.code, 'parms': e.parms}), 409
 
-    app.register_error_handler(OleaException, handle_olea_exceptions)
-    if app.config.get('IGNORE_ERRORS', False):
+    if not app.config.get('IGNORE_ERRORS', False):
         sentry_sdk_init(dsn=app.config['SENTRY_DSN'],
                         integrations=[
                             flask.FlaskIntegration(),

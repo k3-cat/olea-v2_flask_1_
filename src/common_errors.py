@@ -13,4 +13,4 @@ class AccessDenied(OleaException):
 
 class DuplicateObj(OleaException):
     def __init__(self, obj: object):
-        super().__init__(code='SW39', obj=obj.__class__.__name__)
+        super().__init__(code='JQ9I', obj=obj.__class__.__name__)

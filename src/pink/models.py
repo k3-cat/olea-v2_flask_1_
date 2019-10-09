@@ -7,9 +7,7 @@ from exts.sqlalchemy_.types import (JSON, ArrayOfEnum, Boolean, DateTime, Enum,
                                     Integer, String)
 from leaf.models import Leaf
 
-from .errors import CommonPwd, PwdTooShort, PwdTooWeek
 from .passlib_ import olea_context
-from .pwd_tools import WEAK_MAX, is_common_pwd, measure_strength
 
 
 class Pink(BaseModel):
@@ -51,9 +49,6 @@ class Pink(BaseModel):
         super().__init__(name=name, qq=qq, line=line, email=email, deps=deps)
         self.id = generate_id(9)
         self.metadata = dict()
-
-    def verify_pwd(self, pwd: str) -> bool:
-        return olea_context.verify(pwd, self._pwd)
 
     def to_dict(self, lv: int) -> Dict[str, Any]:
         if lv == 0:
